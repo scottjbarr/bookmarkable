@@ -61,8 +61,6 @@ func main() {
 		os.Exit(errorDBCreate)
 	}
 
-	// fmt.Printf("gist = %+v\n", *db.gist)
-
 	p, err := NewPage(url)
 
 	if err != nil {
