@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -9,13 +10,18 @@ import (
 )
 
 var (
+	errNotFound = errors.New("Not found")
+
+	dbDir         = os.Getenv("HOME") + "/.bookmarkable"
+	defaultConfig = dbDir + "/config.json"
+
 	versionFlag = flag.Bool("v", false, "Print version and exit")
 	configFile  = flag.String(
 		"config",
-		"/Users/scott/.bookmarkable/config.json",
+		defaultConfig,
 		"Config file. See config/example.json.dist")
 	url  = flag.String("url", "", "URL to bookmark")
-	tags = flag.String("tags", "", "e.g. \"foo bar\" adds tag \"foo\" and \"bar\"")
+	tags = flag.String("tags", "", "\"foo bar\" adds tag \"foo\" and \"bar\"")
 )
 
 func init() {
@@ -27,7 +33,7 @@ func init() {
 		flag.PrintDefaults()
 
 		fmt.Fprintln(os.Stderr, "\nUsage:")
-		fmt.Fprintln(os.Stderr, "    bookmarkable -config conf.json")
+		fmt.Fprintln(os.Stderr, "    bookmarkable command -config conf.json")
 	}
 }
 
@@ -37,9 +43,25 @@ const (
 	errorDBGet            = 4
 	errorPageGet          = 8
 	errorBookmarkAdd      = 16
+	cmdAdd                = "add"
+	cmdList               = "list"
+	cmdSearch             = "search"
 )
 
 func main() {
+	// remove the command so that the flags are parsable
+	args := os.Args[0:1]
+	cmd := os.Args[1]
+
+	fmt.Printf("cmd = %v\n", cmd)
+
+	for _, s := range os.Args[2:] {
+		args = append(args, s)
+	}
+
+	// command removed, put the args back
+	os.Args = args
+
 	flag.Parse()
 
 	if *versionFlag || *url == "" {
@@ -48,6 +70,18 @@ func main() {
 	}
 
 	config, err := parseConfig(*configFile)
+
+	// if cmd == cmdList {
+	// 	fmt.Printf("list bookmarks\n")
+	// } else if cmd == cmdAdd {
+	// 	fmt.Printf("add\n")
+	// } else if cmd == cmdSearch {
+	// 	fmt.Printf("search\n")
+	// }
+
+	fmt.Printf("url = %v\n", *url)
+
+	// os.Exit(0)
 
 	if err != nil {
 		fmt.Printf("%v", err)

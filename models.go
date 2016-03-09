@@ -4,116 +4,94 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+	"io/ioutil"
 	"strings"
 	"time"
 )
 
-func (db *DB) getClient() *github.Client {
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: db.config.Token},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-
-	return github.NewClient(tc)
+type DB struct {
+	config    *Config
+	bookmarks []*Bookmark
+	storage   *gistStore
 }
 
 func New(config *Config) *DB {
 	db := &DB{
 		config:    config,
 		bookmarks: make([]*Bookmark, 0),
-		gistname:  "bookmarkable",
 	}
 
-	db.client = db.getClient()
-	db.load()
+	db.storage = newGistStore(config.ID, &config.Token)
 
-	fmt.Printf("New content = %v\n", *db.gist.Files[db.filename()].Content)
+	if err := db.storage.init(); err != nil {
+		panic(err)
+	}
+
+	d1 := []byte(*db.storage.content)
+	filename := dbDir + "/" + *db.storage.file.Filename
+
+	if err := ioutil.WriteFile(filename, d1, 0644); err != nil {
+		panic(err)
+	}
+
 	return db
 }
 
-type DB struct {
-	config    *Config
-	client    *github.Client
-	gistname  string
-	gist      *github.Gist
-	bookmarks []*Bookmark
-}
+// func (db *DB) create() error {
+// 	var bookmarks = make([]*Bookmark, 0)
+// 	db.bookmarks = bookmarks
 
-func (db *DB) load() error {
-	gists, _, err := db.client.Gists.List("", nil)
+// 	if err := db.updateContent(); err != nil {
+// 		return err
+// 	}
 
-	if err != nil {
-		return err
-	}
+// 	g, _, err := db.client.Gists.Create(db.gist)
 
-	index := -1
-	for i, g := range gists {
-		if g.Description != nil && *g.Description == db.gistname {
-			index = i
-		}
-	}
+// 	if err != nil {
+// 		return err
+// 	}
 
-	if index > -1 {
-		fmt.Printf("loaded existing gist\n")
+// 	db.gist = g
 
-		id := gists[index].ID
-		g, _, err := db.client.Gists.Get(*id)
+// 	return nil
+// }
 
-		if err != nil {
-			return err
-		}
+// func (db *DB) filename() github.GistFilename {
+// 	var filename github.GistFilename
+// 	filename = "bookmarkable.json"
 
-		db.gist = g
+// 	return filename
+// }
 
-		fmt.Printf("initial content load = %+v\n", *db.gist.Files[db.filename()].Content)
+// func (db *DB) updateContent() error {
+// 	var bytes []byte
+// 	var err error
 
-		var ary []*Bookmark
+// 	if bytes, err = json.MarshalIndent(db.bookmarks, "", "  "); err != nil {
+// 		return err
+// 	}
 
-		bytes := []byte(*db.gist.Files[db.filename()].Content)
-		err = json.Unmarshal(bytes, &ary)
+// 	content := string(bytes)
+// 	fmt.Printf("content = %v\n", content)
 
-		if err != nil {
-			panic(err)
-			return err
-		}
+// 	name := string(db.filename())
+// 	files := make(map[github.GistFilename]github.GistFile, 0)
 
-		db.bookmarks = ary
+// 	files[db.filename()] = github.GistFile{
+// 		Filename: &name,
+// 		Content:  &content,
+// 	}
 
-		return nil
-	}
+// 	db.gist.Files = files // [db.filename()] = file
 
-	return db.create()
-}
+// 	fmt.Printf("gist.content = %v\n", *db.gist.Files[db.filename()].Content)
 
-func (db *DB) create() error {
-	var bookmarks = make([]*Bookmark, 0)
-	db.bookmarks = bookmarks
+// 	return nil
+// }
 
-	if err := db.updateContent(); err != nil {
-		return err
-	}
+func (db *DB) add(bookmark *Bookmark) error {
+	db.bookmarks = append(db.bookmarks, bookmark)
 
-	g, _, err := db.client.Gists.Create(db.gist)
-
-	if err != nil {
-		return err
-	}
-
-	db.gist = g
-
-	return nil
-}
-
-func (db *DB) filename() github.GistFilename {
-	var filename github.GistFilename
-	filename = "bookmarkable.json"
-
-	return filename
-}
-
-func (db *DB) updateContent() error {
 	var bytes []byte
 	var err error
 
@@ -122,40 +100,7 @@ func (db *DB) updateContent() error {
 	}
 
 	content := string(bytes)
-	fmt.Printf("content = %v\n", content)
-
-	name := string(db.filename())
-	files := make(map[github.GistFilename]github.GistFile, 0)
-
-	files[db.filename()] = github.GistFile{
-		Filename: &name,
-		Content:  &content,
-	}
-
-	db.gist.Files = files // [db.filename()] = file
-
-	fmt.Printf("gist.content = %v\n", *db.gist.Files[db.filename()].Content)
-
-	return nil
-}
-
-func (db *DB) add(bookmark *Bookmark) error {
-	db.bookmarks = append(db.bookmarks, bookmark)
-
-	db.updateContent()
-
-	var g *github.Gist
-	var err error
-
-	g, _, err = db.client.Gists.Edit(*db.gist.ID, db.gist)
-
-	if err != nil {
-		return err
-	}
-
-	db.gist = g
-
-	return nil
+	return db.storage.update(&content)
 }
 
 type Bookmark struct {

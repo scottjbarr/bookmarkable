@@ -9,7 +9,8 @@ import (
 //
 // GistName string `json:"gist_name"`
 type Config struct {
-	Token string `json:"token"`
+	ID    *string `json:"id"`
+	Token string  `json:"token"`
 }
 
 // ParseConfig parses a config file
