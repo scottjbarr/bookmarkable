@@ -5,8 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
-	"time"
 )
 
 var (
@@ -53,7 +51,7 @@ func main() {
 	args := os.Args[0:1]
 	cmd := os.Args[1]
 
-	fmt.Printf("cmd = %v\n", cmd)
+	// fmt.Printf("cmd = %v\n", cmd)
 
 	for _, s := range os.Args[2:] {
 		args = append(args, s)
@@ -64,24 +62,12 @@ func main() {
 
 	flag.Parse()
 
-	if *versionFlag || *url == "" {
+	if *versionFlag { // }|| *url == "" {
 		flag.Usage()
 		os.Exit(0)
 	}
 
 	config, err := parseConfig(*configFile)
-
-	// if cmd == cmdList {
-	// 	fmt.Printf("list bookmarks\n")
-	// } else if cmd == cmdAdd {
-	// 	fmt.Printf("add\n")
-	// } else if cmd == cmdSearch {
-	// 	fmt.Printf("search\n")
-	// }
-
-	fmt.Printf("url = %v\n", *url)
-
-	// os.Exit(0)
 
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -95,27 +81,31 @@ func main() {
 		os.Exit(errorDBCreate)
 	}
 
-	p, err := NewPage(url)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		os.Exit(errorPageGet)
+	if cmd == "sync" {
+		db.sync()
+	} else if cmd == "search" {
+		results := db.search(os.Args[1])
+		printBookmarks(results)
+	} else if cmd == "search" {
+		results, _ := db.getBookmarks()
+		printBookmarks(results)
+	} else if cmd == "add" {
+		// fmt.Printf("adding\n")
+		url := os.Args[1]
+		tags := os.Args[2:]
+		// fmt.Printf("url = %v tags = %v\n", url, tags)
+		if err := db.add(url, tags); err != nil {
+			fmt.Printf("%v\n", err)
+		}
 	}
+}
 
-	fmt.Printf("page = %s\n", p)
-
-	tagArray := strings.Split(*tags, " ")
-
-	b := Bookmark{
-		Title:     *p.title,
-		URL:       *p.url,
-		Tags:      tagArray,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	if err := db.add(&b); err != nil {
-		fmt.Printf("%v\n", err)
-		os.Exit(errorBookmarkAdd)
+func printBookmarks(bookmarks []*Bookmark) {
+	for _, b := range bookmarks {
+		fmt.Printf("%v\n  %v\n  %v\n  %v\n\n",
+			b.Title,
+			b.URL,
+			b.Tags,
+			b.CreatedAt)
 	}
 }

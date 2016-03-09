@@ -6,12 +6,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// type storage interface {
-// 	init()
-// 	sync()
-// 	save()
-// }
-
 type gistStore struct {
 	id       *string
 	token    *string
@@ -62,13 +56,7 @@ func (gs *gistStore) init() error {
 		return nil
 	}
 
-	// gs.create()
-
 	return err
-}
-
-func (gs *gistStore) create() error {
-	return nil
 }
 
 func (gs *gistStore) byID() error {
@@ -83,7 +71,6 @@ func (gs *gistStore) byID() error {
 
 	file := gist.Files[*gs.filename]
 	gs.file = &file
-	// gs.content = gist.Files[*gs.filename].Content
 	gs.content = gs.file.Content
 	fmt.Printf("  gist content = %v\n", *gs.content)
 
@@ -113,31 +100,9 @@ func (gs *gistStore) retrieve() error {
 	}
 
 	return gs.byID()
-
-	// if err != nil {
-	// 	return err
-	// }
-
-	// db.gist = g
-
-	// fmt.Printf("initial content load = %+v\n", *g.Files[db.filename()].Content)
-
-	// var ary []*Bookmark
-
-	// bytes := []byte(*db.gist.Files[db.filename()].Content)
-	// err = json.Unmarshal(bytes, &ary)
-
-	// if err != nil {
-	// 	panic(err)
-	// 	return err
-	// }
-
-	// db.bookmarks = ary
-	// file := gs.gist.Files[*gs.filename]
-	// return nil // file.Content, nil
 }
 
-func (gs *gistStore) update(content *string) error {
-	// g, _, err = gs.client.Gists.Edit(gs.ID, gs.gist)
-	return nil
-}
+// func (gs *gistStore) update(content *string) error {
+// 	g, _, err = gs.client.Gists.Edit(gs.ID, gs.gist)
+// 	return nil
+// }
