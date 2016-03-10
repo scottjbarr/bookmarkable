@@ -65,7 +65,7 @@ func (db *DB) add(url string, tags []string) error {
 		return err
 	}
 
-	fmt.Printf("page = %s\n", p)
+	// fmt.Printf("page = %s\n", p)
 
 	b := Bookmark{
 		Title:     *p.title,
@@ -75,7 +75,7 @@ func (db *DB) add(url string, tags []string) error {
 		UpdatedAt: time.Now(),
 	}
 
-	fmt.Printf("b = %+v\n", b)
+	// fmt.Printf("b = %+v\n", b)
 
 	db.bookmarks = append(db.bookmarks, &b)
 
@@ -88,6 +88,7 @@ func (db *DB) add(url string, tags []string) error {
 	content := string(bytes)
 	fmt.Printf("content = %v\n", content)
 	// return db.storage.update(&content)
+
 	return nil
 }
 
