@@ -86,7 +86,7 @@ func main() {
 	} else if cmd == "search" {
 		results := db.search(os.Args[1])
 		printBookmarks(results)
-	} else if cmd == "search" {
+	} else if cmd == "list" {
 		results, _ := db.getBookmarks()
 		printBookmarks(results)
 	} else if cmd == "add" {
@@ -96,6 +96,7 @@ func main() {
 		// fmt.Printf("url = %v tags = %v\n", url, tags)
 		if err := db.add(url, tags); err != nil {
 			fmt.Printf("%v\n", err)
+			os.Exit(64)
 		}
 	}
 }
