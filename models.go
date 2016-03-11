@@ -27,21 +27,20 @@ func New(config *Config) *DB {
 	return db
 }
 
-func (db *DB) sync() {
+func (db *DB) sync() error {
 	if err := db.storage.init(); err != nil {
-		panic(err)
+		return err
 	}
-
-	// fmt.Printf("gist id = %v\n", *db.storage.gist.ID)
 
 	// todo write the gist id to the config file if we don't already have it
 	// ...
 
-	d1 := []byte(*db.storage.content)
+	return db.writeBookmarks()
+}
 
-	if err := ioutil.WriteFile(db.filename, d1, 0644); err != nil {
-		panic(err)
-	}
+func (db *DB) writeBookmarks() error {
+	d1 := []byte(*db.storage.content)
+	return ioutil.WriteFile(db.filename, d1, 0644)
 }
 
 func (db *DB) search(phrase string) []*Bookmark {
@@ -95,8 +94,13 @@ func (db *DB) add(url string, tags []string) error {
 	}
 
 	content := string(bytes)
+	db.storage.content = &content
 
-	return db.storage.update(&content)
+	if err := db.storage.update(); err != nil {
+		return err
+	}
+
+	return db.writeBookmarks()
 }
 
 func (db *DB) getBookmarks() ([]*Bookmark, error) {

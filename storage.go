@@ -106,13 +106,13 @@ func (gs *gistStore) retrieve() error {
 // 	return nil
 // }
 
-func (gs *gistStore) update(content *string) error {
+func (gs *gistStore) update() error {
 	files := make(map[github.GistFilename]github.GistFile, 0)
 
 	f := "bookmarkable.json"
 	files[*gs.filename] = github.GistFile{
 		Filename: &f,
-		Content:  content,
+		Content:  gs.content,
 	}
 
 	gs.gist = &github.Gist{}
