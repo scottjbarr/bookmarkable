@@ -32,6 +32,11 @@ func (db *DB) sync() {
 		panic(err)
 	}
 
+	// fmt.Printf("gist id = %v\n", *db.storage.gist.ID)
+
+	// todo write the gist id to the config file if we don't already have it
+	// ...
+
 	d1 := []byte(*db.storage.content)
 
 	if err := ioutil.WriteFile(db.filename, d1, 0644); err != nil {
@@ -61,7 +66,6 @@ func (db *DB) add(url string, tags []string) error {
 	p, err := NewPage(&url)
 
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		return err
 	}
 
@@ -77,7 +81,12 @@ func (db *DB) add(url string, tags []string) error {
 
 	// fmt.Printf("b = %+v\n", b)
 
-	db.bookmarks = append(db.bookmarks, &b)
+	bookmarks, err := db.getBookmarks()
+	if err != nil {
+		return err
+	}
+
+	db.bookmarks = append(bookmarks, &b)
 
 	var bytes []byte
 
@@ -86,10 +95,8 @@ func (db *DB) add(url string, tags []string) error {
 	}
 
 	content := string(bytes)
-	fmt.Printf("content = %v\n", content)
-	// return db.storage.update(&content)
 
-	return nil
+	return db.storage.update(&content)
 }
 
 func (db *DB) getBookmarks() ([]*Bookmark, error) {

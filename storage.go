@@ -45,7 +45,6 @@ func newGistStore(id *string, token *string) *gistStore {
 
 func (gs *gistStore) init() error {
 	var err error
-
 	err = gs.retrieve()
 
 	if err != nil {
@@ -106,3 +105,25 @@ func (gs *gistStore) retrieve() error {
 // 	g, _, err = gs.client.Gists.Edit(gs.ID, gs.gist)
 // 	return nil
 // }
+
+func (gs *gistStore) update(content *string) error {
+	files := make(map[github.GistFilename]github.GistFile, 0)
+
+	f := "bookmarkable.json"
+	files[*gs.filename] = github.GistFile{
+		Filename: &f,
+		Content:  content,
+	}
+
+	gs.gist = &github.Gist{}
+	gs.gist.Files = files
+
+	gist, _, err := gs.client.Gists.Edit(*gs.id, gs.gist)
+
+	if err != nil {
+		return err
+	}
+
+	gs.gist = gist
+	return nil
+}
