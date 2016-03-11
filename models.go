@@ -68,8 +68,6 @@ func (db *DB) add(url string, tags []string) error {
 		return err
 	}
 
-	// fmt.Printf("page = %s\n", p)
-
 	b := Bookmark{
 		Title:     *p.title,
 		URL:       *p.url,
@@ -77,8 +75,6 @@ func (db *DB) add(url string, tags []string) error {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-
-	// fmt.Printf("b = %+v\n", b)
 
 	bookmarks, err := db.getBookmarks()
 	if err != nil {
@@ -167,55 +163,3 @@ func NewPage(url *string) (*page, error) {
 
 	return p, nil
 }
-
-// func (db *DB) create() error {
-// 	var bookmarks = make([]*Bookmark, 0)
-// 	db.bookmarks = bookmarks
-
-// 	if err := db.updateContent(); err != nil {
-// 		return err
-// 	}
-
-// 	g, _, err := db.client.Gists.Create(db.gist)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	db.gist = g
-
-// 	return nil
-// }
-
-// func (db *DB) filename() github.GistFilename {
-// 	var filename github.GistFilename
-// 	filename = "bookmarkable.json"
-
-// 	return filename
-// }
-
-// func (db *DB) updateContent() error {
-// 	var bytes []byte
-// 	var err error
-
-// 	if bytes, err = json.MarshalIndent(db.bookmarks, "", "  "); err != nil {
-// 		return err
-// 	}
-
-// 	content := string(bytes)
-// 	fmt.Printf("content = %v\n", content)
-
-// 	name := string(db.filename())
-// 	files := make(map[github.GistFilename]github.GistFile, 0)
-
-// 	files[db.filename()] = github.GistFile{
-// 		Filename: &name,
-// 		Content:  &content,
-// 	}
-
-// 	db.gist.Files = files // [db.filename()] = file
-
-// 	fmt.Printf("gist.content = %v\n", *db.gist.Files[db.filename()].Content)
-
-// 	return nil
-// }

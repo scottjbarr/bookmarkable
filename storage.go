@@ -59,7 +59,6 @@ func (gs *gistStore) init() error {
 }
 
 func (gs *gistStore) byID() error {
-	// fmt.Printf("byID()\n")
 	gist, _, err := gs.client.Gists.Get(*gs.id)
 
 	if err != nil {
@@ -71,7 +70,6 @@ func (gs *gistStore) byID() error {
 	file := gist.Files[*gs.filename]
 	gs.file = &file
 	gs.content = gs.file.Content
-	// fmt.Printf("  gist content = %v\n", *gs.content)
 
 	return nil
 }
@@ -100,11 +98,6 @@ func (gs *gistStore) retrieve() error {
 
 	return gs.byID()
 }
-
-// func (gs *gistStore) update(content *string) error {
-// 	g, _, err = gs.client.Gists.Edit(gs.ID, gs.gist)
-// 	return nil
-// }
 
 func (gs *gistStore) update() error {
 	files := make(map[github.GistFilename]github.GistFile, 0)

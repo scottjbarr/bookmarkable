@@ -82,7 +82,10 @@ func main() {
 	}
 
 	if cmd == "sync" {
-		db.sync()
+		if err := db.sync(); err != nil {
+			fmt.Printf("%v\n", err)
+			os.Exit(32)
+		}
 	} else if cmd == "search" {
 		results := db.search(os.Args[1])
 		printBookmarks(results)
@@ -90,10 +93,8 @@ func main() {
 		results, _ := db.getBookmarks()
 		printBookmarks(results)
 	} else if cmd == "add" {
-		// fmt.Printf("adding\n")
 		url := os.Args[1]
 		tags := os.Args[2:]
-		// fmt.Printf("url = %v tags = %v\n", url, tags)
 		if err := db.add(url, tags); err != nil {
 			fmt.Printf("%v\n", err)
 			os.Exit(64)
