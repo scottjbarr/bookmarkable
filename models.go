@@ -10,32 +10,62 @@ import (
 )
 
 type DB struct {
-	config    *Config
-	bookmarks []*Bookmark
-	storage   *gistStore
-	filename  string
+	config         *Config
+	configFileName *string
+	bookmarks      []*Bookmark
+	storage        *gistStore
+	filename       string
 }
 
-func New(config *Config) *DB {
+func New(configFileName *string) (*DB, error) {
 	db := &DB{
-		config:    config,
-		bookmarks: make([]*Bookmark, 0),
+		configFileName: configFileName,
+		bookmarks:      make([]*Bookmark, 0),
 	}
-	db.filename = dbDir + "/bookmarkable.json"
-	db.storage = newGistStore(config.ID, &config.Token)
 
-	return db
+	c, err := parseConfig(*db.configFileName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	db.config = c
+	db.filename = dbDir + "/bookmarkable.json"
+	db.storage = newGistStore(db.config.ID, &db.config.Token)
+
+	return db, nil
 }
 
 func (db *DB) sync() error {
-	if err := db.storage.init(); err != nil {
+	var err error
+	if err = db.storage.init(); err != nil {
 		return err
 	}
 
-	// todo write the gist id to the config file if we don't already have it
-	// ...
+	// write the gist id to the config file if we don't already have it
+	if db.config.ID == nil {
+		db.config.ID = db.storage.gist.ID
+		if err = db.writeConfig(); err != nil {
+			return err
+		}
+	}
 
 	return db.writeBookmarks()
+}
+
+func (db *DB) writeConfig() error {
+	var b []byte
+	var err error
+
+	if b, err = json.MarshalIndent(db.config, "", "  "); err != nil {
+		return err
+	}
+
+	if err = ioutil.WriteFile(*db.configFileName, b, 0644); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *DB) writeBookmarks() error {
