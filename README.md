@@ -69,7 +69,8 @@ bookmarkable search foo
 
 ## TODO?
 
-- Create the initial gist.
+- Handle commands and flags
+- Create the initial gist
 - Command based docs from command line
 - Prevent clobbering later version of gist
 - Make URL's unique
