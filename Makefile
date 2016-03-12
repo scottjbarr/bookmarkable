@@ -30,7 +30,7 @@ install:
 	go install
 
 run:
-	$(GO) run $(GO_FILES) -config $(CONFIG_FILE) -url http://example.com -tags "foo,bar"
+	$(GO) run cmd/bookmarkable/main.go list
 
 test:
 	$(GO) test
