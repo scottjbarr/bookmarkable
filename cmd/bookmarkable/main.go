@@ -75,7 +75,7 @@ func main() {
 	} else if cmd == cmdList {
 		results, _ := db.GetBookmarks()
 		printBookmarks(results)
-	} else if cmd == cmdList {
+	} else if cmd == cmdAdd {
 		url := os.Args[1]
 		tags := os.Args[2:]
 		if err := db.Add(url, tags); err != nil {
