@@ -23,6 +23,12 @@ Create a Personal Access Token on Github. The only permission required
 is `Create Gist`. Take note of this token after creation as you cannot
 view it again. (Worst case, you can regenerate the token.)
 
+### Create an empty Gist
+
+Create a secret gist named `bookmarkable.json`, with content `[]`
+
+*This is on my TODO list :)*
+
 ### Create a configuration file
 
 Create a config file at `~/.bookmarkable/config.json`.
@@ -63,6 +69,7 @@ bookmarkable search foo
 
 ## TODO?
 
+- Create the initial gist.
 - Command based docs from command line
 - Error handling
 - Delete bookmark(s)
