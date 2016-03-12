@@ -1,7 +1,9 @@
 # Bookmarkable
 
-Bookmarkable is a fun little program I've put together to help me
-manage my bookmarks across multiple machines, from the command line.
+Bookmarkable is a little program I've built to help me manage my
+bookmarks across multiple machines, from the command line. Yes, I
+could have (and have) used some third party thing, but in the end I
+just want simplicity and to be in control of my own data.
 
 I'm using a secret Gist as storage, so you will neeed to setup a Personal Access Token on Github.
 
@@ -59,12 +61,14 @@ Search bookmarks for `foo`.
 bookmarkable search foo
 ```
 
-## TODO
+## TODO?
 
+- Command based docs from command line
+- Error handling
 - Delete bookmark(s)
 - Public bookmarks
-- Command based docs from command line.
-- Error handling
+- Publish a HTML friendly list of bookmarks
+- Alternative storage
 
 ## Licence
 
