@@ -71,11 +71,12 @@ bookmarkable search foo
 
 - Create the initial gist.
 - Command based docs from command line
-- Error handling
+- Prevent clobbering later version of gist
+- Make URL's unique
 - Delete bookmark(s)
 - Public bookmarks
-- Publish a HTML friendly list of bookmarks
-- Alternative storage
+- Publish a HTML friendly list of bookmarks?
+- Alternative storage?
 
 ## Licence
 
