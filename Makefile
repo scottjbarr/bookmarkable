@@ -9,7 +9,6 @@ PROG_BUILD = $(BUILD_DIR)/$(PROG)
 PROG_DIST = $(DIST_DIR)/$(PROG)
 
 BUILD = $(GO) build -ldflags $(FLAGS)
-INSTALL= $(GO) install -ldflags $(FLAGS)
 
 VERSION := `git rev-parse HEAD`
 COMMIT := `git rev-parse HEAD`
@@ -27,7 +26,8 @@ build:
 	$(BUILD) -o $(PROG_BUILD)
 
 install:
-	$(INSTALL)
+	cd cmd/bookmarkable
+	go install
 
 run:
 	$(GO) run $(GO_FILES) -config $(CONFIG_FILE) -url http://example.com -tags "foo,bar"
