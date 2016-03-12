@@ -1,3 +1,5 @@
+// Package bookmarkable manages private bookmarks using Gist as the
+// storage mechanism.
 package bookmarkable
 
 import (
