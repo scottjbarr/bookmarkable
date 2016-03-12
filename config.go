@@ -8,20 +8,20 @@ import (
 // Config top level configuration struct
 //
 // GistName string `json:"gist_name"`
-type Config struct {
+type config struct {
 	ID    *string `json:"id"`
 	Token string  `json:"token"`
 }
 
 // ParseConfig parses a config file
-func parseConfig(filename string) (*Config, error) {
+func parseConfig(filename string) (*config, error) {
 	bytes, err := ioutil.ReadFile(filename)
 
 	if err != nil {
 		return nil, err
 	}
 
-	config := Config{}
+	config := config{}
 
 	if err := json.Unmarshal(bytes, &config); err != nil {
 		return nil, err
