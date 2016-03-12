@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// DB is the front end storage model.
 type DB struct {
 	config         *Config
 	configFileName *string
@@ -17,6 +18,7 @@ type DB struct {
 	filename       string
 }
 
+// New creates and returns a DB from a config file.
 func New(configFileName *string, dbDir string) (*DB, error) {
 	db := &DB{
 		configFileName: configFileName,
@@ -36,6 +38,10 @@ func New(configFileName *string, dbDir string) (*DB, error) {
 	return db, nil
 }
 
+// Sync updates local bookmarks with the remote copy.
+//
+// This does not merge bookmarks so anything you have managed to store
+// locally will be overwritten.
 func (db *DB) Sync() error {
 	var err error
 	if err = db.storage.init(); err != nil {
@@ -73,8 +79,9 @@ func (db *DB) writeBookmarks() error {
 	return ioutil.WriteFile(db.filename, d1, 0644)
 }
 
+// Search returns Bookmarks structs that match the given phrase.
 func (db *DB) Search(phrase string) []*Bookmark {
-	results := make([]*Bookmark, 0)
+	var results []*Bookmark
 
 	ary, err := db.GetBookmarks()
 
@@ -91,8 +98,9 @@ func (db *DB) Search(phrase string) []*Bookmark {
 	return results
 }
 
+// Add adds a new Bookmark to the collection, and updates storage.
 func (db *DB) Add(url string, tags []string) error {
-	p, err := NewPage(&url)
+	p, err := newPage(&url)
 
 	if err != nil {
 		return err
@@ -129,6 +137,7 @@ func (db *DB) Add(url string, tags []string) error {
 	return db.writeBookmarks()
 }
 
+// GetBookmarks returns all locally stored Bookmark structs.
 func (db *DB) GetBookmarks() ([]*Bookmark, error) {
 	if len(db.bookmarks) == 0 {
 		bytes, err := ioutil.ReadFile(db.filename)
@@ -145,6 +154,7 @@ func (db *DB) GetBookmarks() ([]*Bookmark, error) {
 	return db.bookmarks, nil
 }
 
+// Bookmark represents a single Bookmark
 type Bookmark struct {
 	Title     string    `json:"title"`
 	URL       string    `json:"url"`
@@ -178,7 +188,7 @@ func (p *page) String() string {
 	return fmt.Sprintf("url:%s : title:%v", *p.url, *p.title)
 }
 
-func NewPage(url *string) (*page, error) {
+func newPage(url *string) (*page, error) {
 	p := &page{
 		url: url,
 	}
