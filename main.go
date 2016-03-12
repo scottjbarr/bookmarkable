@@ -1,25 +1,16 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
 )
 
 var (
-	errNotFound = errors.New("Not found")
-
 	dbDir         = os.Getenv("HOME") + "/.bookmarkable"
 	defaultConfig = dbDir + "/config.json"
 
 	versionFlag = flag.Bool("v", false, "Print version and exit")
-	configFile  = flag.String(
-		"config",
-		defaultConfig,
-		"Config file. See config/example.json.dist")
-	url  = flag.String("url", "", "URL to bookmark")
-	tags = flag.String("tags", "", "\"foo bar\" adds tag \"foo\" and \"bar\"")
 )
 
 func init() {
@@ -36,22 +27,16 @@ func init() {
 }
 
 const (
-	errorUnparsableConfig = 1
-	errorDBCreate         = 2
-	errorDBGet            = 4
-	errorPageGet          = 8
-	errorBookmarkAdd      = 16
-	cmdAdd                = "add"
-	cmdList               = "list"
-	cmdSearch             = "search"
+	cmdSync   = "sync"
+	cmdAdd    = "add"
+	cmdList   = "list"
+	cmdSearch = "search"
 )
 
 func main() {
 	// remove the command so that the flags are parsable
 	args := os.Args[0:1]
 	cmd := os.Args[1]
-
-	// fmt.Printf("cmd = %v\n", cmd)
 
 	for _, s := range os.Args[2:] {
 		args = append(args, s)
@@ -62,42 +47,36 @@ func main() {
 
 	flag.Parse()
 
-	if *versionFlag { // }|| *url == "" {
+	if *versionFlag {
 		flag.Usage()
 		os.Exit(0)
 	}
 
-	config, err := parseConfig(*configFile)
+	configFile := &defaultConfig
+	db, err := New(configFile)
 
 	if err != nil {
 		fmt.Printf("%v", err)
-		os.Exit(errorUnparsableConfig)
+		os.Exit(1)
 	}
 
-	db := New(config)
-
-	if err != nil {
-		fmt.Printf("%v", err)
-		os.Exit(errorDBCreate)
-	}
-
-	if cmd == "sync" {
+	if cmd == cmdSync {
 		if err := db.sync(); err != nil {
 			fmt.Printf("%v\n", err)
-			os.Exit(32)
+			os.Exit(2)
 		}
-	} else if cmd == "search" {
+	} else if cmd == cmdSearch {
 		results := db.search(os.Args[1])
 		printBookmarks(results)
-	} else if cmd == "list" {
+	} else if cmd == cmdList {
 		results, _ := db.getBookmarks()
 		printBookmarks(results)
-	} else if cmd == "add" {
+	} else if cmd == cmdList {
 		url := os.Args[1]
 		tags := os.Args[2:]
 		if err := db.add(url, tags); err != nil {
 			fmt.Printf("%v\n", err)
-			os.Exit(64)
+			os.Exit(4)
 		}
 	}
 }
