@@ -12,7 +12,7 @@ import (
 )
 
 // DB is the front end storage model.
-type db struct {
+type DB struct {
 	config         *config
 	configFileName *string
 	bookmarks      []*Bookmark
@@ -21,8 +21,8 @@ type db struct {
 }
 
 // New creates and returns a DB from a config file.
-func New(configFileName *string, dbDir string) (*db, error) {
-	db := &db{
+func New(configFileName *string, dbDir string) (*DB, error) {
+	db := &DB{
 		configFileName: configFileName,
 		bookmarks:      make([]*Bookmark, 0),
 	}
@@ -44,7 +44,7 @@ func New(configFileName *string, dbDir string) (*db, error) {
 //
 // This does not merge bookmarks so anything you have managed to store
 // locally will be overwritten.
-func (db *db) Sync() error {
+func (db *DB) Sync() error {
 	var err error
 	if err = db.storage.init(); err != nil {
 		return err
@@ -61,7 +61,7 @@ func (db *db) Sync() error {
 	return db.writeBookmarks()
 }
 
-func (db *db) writeConfig() error {
+func (db *DB) writeConfig() error {
 	var b []byte
 	var err error
 
@@ -76,13 +76,13 @@ func (db *db) writeConfig() error {
 	return nil
 }
 
-func (db *db) writeBookmarks() error {
+func (db *DB) writeBookmarks() error {
 	d1 := []byte(*db.storage.content)
 	return ioutil.WriteFile(db.filename, d1, 0644)
 }
 
 // Search returns Bookmarks structs that match the given phrase.
-func (db *db) Search(phrase string) []*Bookmark {
+func (db *DB) Search(phrase string) []*Bookmark {
 	var results []*Bookmark
 
 	ary, err := db.GetBookmarks()
@@ -101,7 +101,7 @@ func (db *db) Search(phrase string) []*Bookmark {
 }
 
 // Add adds a new Bookmark to the collection, and updates storage.
-func (db *db) Add(url string, tags []string) error {
+func (db *DB) Add(url string, tags []string) error {
 	p, err := newPage(&url)
 
 	if err != nil {
@@ -140,7 +140,7 @@ func (db *db) Add(url string, tags []string) error {
 }
 
 // GetBookmarks returns all locally stored Bookmark structs.
-func (db *db) GetBookmarks() ([]*Bookmark, error) {
+func (db *DB) GetBookmarks() ([]*Bookmark, error) {
 	if len(db.bookmarks) == 0 {
 		bytes, err := ioutil.ReadFile(db.filename)
 
