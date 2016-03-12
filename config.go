@@ -1,4 +1,4 @@
-package main
+package bookmarkable
 
 import (
 	"encoding/json"

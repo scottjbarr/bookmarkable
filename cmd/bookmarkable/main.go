@@ -4,13 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/scottjbarr/bookmarkable"
 )
 
 var (
+	version       = "Unspecified"
+	commit        = "Unspecified"
+	buildDate     = "Unspecified"
 	dbDir         = os.Getenv("HOME") + "/.bookmarkable"
 	defaultConfig = dbDir + "/config.json"
-
-	versionFlag = flag.Bool("v", false, "Print version and exit")
+	versionFlag   = flag.Bool("v", false, "Print version and exit")
 )
 
 func init() {
@@ -53,7 +57,7 @@ func main() {
 	}
 
 	configFile := &defaultConfig
-	db, err := New(configFile)
+	db, err := bookmarkable.New(configFile, dbDir)
 
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -61,27 +65,27 @@ func main() {
 	}
 
 	if cmd == cmdSync {
-		if err := db.sync(); err != nil {
+		if err := db.Sync(); err != nil {
 			fmt.Printf("%v\n", err)
 			os.Exit(2)
 		}
 	} else if cmd == cmdSearch {
-		results := db.search(os.Args[1])
+		results := db.Search(os.Args[1])
 		printBookmarks(results)
 	} else if cmd == cmdList {
-		results, _ := db.getBookmarks()
+		results, _ := db.GetBookmarks()
 		printBookmarks(results)
 	} else if cmd == cmdList {
 		url := os.Args[1]
 		tags := os.Args[2:]
-		if err := db.add(url, tags); err != nil {
+		if err := db.Add(url, tags); err != nil {
 			fmt.Printf("%v\n", err)
 			os.Exit(4)
 		}
 	}
 }
 
-func printBookmarks(bookmarks []*Bookmark) {
+func printBookmarks(bookmarks []*bookmarkable.Bookmark) {
 	for _, b := range bookmarks {
 		fmt.Printf("%v\n  %v\n  %v\n  %v\n\n",
 			b.Title,

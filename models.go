@@ -1,4 +1,4 @@
-package main
+package bookmarkable
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type DB struct {
 	filename       string
 }
 
-func New(configFileName *string) (*DB, error) {
+func New(configFileName *string, dbDir string) (*DB, error) {
 	db := &DB{
 		configFileName: configFileName,
 		bookmarks:      make([]*Bookmark, 0),
@@ -36,7 +36,7 @@ func New(configFileName *string) (*DB, error) {
 	return db, nil
 }
 
-func (db *DB) sync() error {
+func (db *DB) Sync() error {
 	var err error
 	if err = db.storage.init(); err != nil {
 		return err
@@ -73,10 +73,10 @@ func (db *DB) writeBookmarks() error {
 	return ioutil.WriteFile(db.filename, d1, 0644)
 }
 
-func (db *DB) search(phrase string) []*Bookmark {
+func (db *DB) Search(phrase string) []*Bookmark {
 	results := make([]*Bookmark, 0)
 
-	ary, err := db.getBookmarks()
+	ary, err := db.GetBookmarks()
 
 	if err != nil {
 		panic(err)
@@ -91,7 +91,7 @@ func (db *DB) search(phrase string) []*Bookmark {
 	return results
 }
 
-func (db *DB) add(url string, tags []string) error {
+func (db *DB) Add(url string, tags []string) error {
 	p, err := NewPage(&url)
 
 	if err != nil {
@@ -106,7 +106,7 @@ func (db *DB) add(url string, tags []string) error {
 		UpdatedAt: time.Now(),
 	}
 
-	bookmarks, err := db.getBookmarks()
+	bookmarks, err := db.GetBookmarks()
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (db *DB) add(url string, tags []string) error {
 	return db.writeBookmarks()
 }
 
-func (db *DB) getBookmarks() ([]*Bookmark, error) {
+func (db *DB) GetBookmarks() ([]*Bookmark, error) {
 	if len(db.bookmarks) == 0 {
 		bytes, err := ioutil.ReadFile(db.filename)
 
